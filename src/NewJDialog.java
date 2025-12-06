@@ -1,27 +1,48 @@
 
+import java.awt.Component;
+import java.awt.Container;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import javax.swing.JFrame;
+import java.util.List;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.DateEditor;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author anaranjo
  */
 public class NewJDialog extends javax.swing.JDialog {
 
+    String formatoFecha = "dd/MM/yyyy";
+    DateEditor editorFecha;
+    List<String> listaArticulos = new ArrayList<>();
+
     /**
      * Creates new form NewJDialog
+     *
+     * @param parent
+     * @param modal
      */
     public NewJDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+
+        // Se formatea la representación que se muestra de la fecha de entrada del artículo en el constructor del JDialog
+        editorFecha = new DateEditor(jSpinnerDateIn, formatoFecha);
+        jSpinnerDateIn.setEditor(editorFecha);
+
     }
 
     /**
@@ -281,95 +302,224 @@ public class NewJDialog extends javax.swing.JDialog {
 
     private void botonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonGuardarActionPerformed
         // TODO add your handling code here:
+
+        // 1. Código de artículo: alfanumérico, máximo 10 caracteres.
         String codigo = tfCodigo.getText();
         System.out.println(String.format("El código %s es alfanumérico con un máximo de diez caracteres.", validarCodigoAlfanumerico(codigo) ? "SI" : "NO"));
 
-        int numCaracteres;
-        numCaracteres = 50;
-        String nombre = tfNombre.getText();
-        System.out.println(String.format("El nombre del artículo %s es texto con un máximo de %d caracteres.", validarTexto(nombre, numCaracteres) ? "SI" : "NO", numCaracteres));
+        while (!validarCodigoAlfanumerico(codigo)) {
+            codigo = JOptionPane.showInputDialog(
+                    this,
+                    "Existe un error --> Código de artículo: introduce un código alfanumérico, máximo 10 caracteres.",
+                    "Solicitud del código",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+        }
 
+        tfCodigo.setText(codigo);
+        System.out.println(String.format("El código %s es alfanumérico con un máximo de diez caracteres.", validarCodigoAlfanumerico(codigo) ? "SI" : "NO"));
+
+        // 2. Nombre del artículo: texto, máximo 50 caracteres.
+        int numMaxCaracteres;
+        numMaxCaracteres = 50;
+        String nombre = tfNombre.getText();
+        System.out.println(String.format("El nombre del artículo %s es texto con un máximo de %d caracteres.", validarTexto(nombre, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
+
+        while (!validarTexto(nombre, numMaxCaracteres)) {
+            nombre = JOptionPane.showInputDialog(
+                    this,
+                    "Existe un error --> Nombre del artículo: introduce un texto, máximo 50 caracteres.",
+                    "Solicitud del nombre del artículo",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+        }
+
+        tfNombre.setText(nombre);
+        System.out.println(String.format("El nombre del artículo %s es texto con un máximo de %d caracteres.", validarTexto(nombre, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
+
+        // 3. Categoría: lista desplegable con opciones como: Ordenador, Portátil, Monitor, Impresora, Accesorio, Componente interno, Otro.
         int itemSeleccionado;
         itemSeleccionado = cbCategoria.getSelectedIndex();
         String categoria;
         categoria = cbCategoria.getItemAt(itemSeleccionado).toString();
         System.out.println(String.format("La categoría seleccionada ha sido: %s", categoria));
 
+        // 4. Precio unitario: número con 2 decimales
         String precio = tfPrecio.getText();
         System.out.println(String.format("El número introducido %s es un número con dos decimales.", validarNumeroDosDecimales(precio) ? "SI" : "NO"));
 
+        while (!validarNumeroDosDecimales(precio)) {
+            precio = JOptionPane.showInputDialog(
+                    this,
+                    "Existe un error --> Precio unitario: introduce un número menor de 10000.00 con 2 decimales empleando el punto como separador decimal.",
+                    "Solicitud del precio del artículo",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+        }
+
+        tfPrecio.setText(precio);
+        System.out.println(String.format("El número introducido %s es un número con dos decimales.", validarNumeroDosDecimales(precio) ? "SI" : "NO"));
+
+        // 5. Stock disponible: número entero.
         String stock = tfStock.getText();
         System.out.println(String.format("El número introducido %s es un número entero.", validarEntero(stock) ? "SI" : "NO"));
 
-        numCaracteres = 30;
-        String proveedor = tfProveedor.getText();
-        System.out.println(String.format("El nombre del proveedor %s es texto con un máximo de %d caracteres.", validarTexto(proveedor, numCaracteres) ? "SI" : "NO", numCaracteres));
+        while (!validarEntero(stock)) {
+            stock = JOptionPane.showInputDialog(
+                    this,
+                    "Existe un error --> Stock disponible: introduce un número entero.",
+                    "Solicitud del stock del artículo",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+        }
 
-        String fechaEntrada = jSpinnerDateIn.getValue().toString();
-        System.out.println(String.format("La fecha de entrada del artículo es: %s", fechaEntrada));
+        tfStock.setText(stock);
+        System.out.println(String.format("El número introducido %s es un número entero.", validarEntero(stock) ? "SI" : "NO"));
+
+        // 6. Proveedor: texto máximo 30 caracteres.
+        numMaxCaracteres = 30;
+        String proveedor = tfProveedor.getText();
+        System.out.println(String.format("El nombre del proveedor %s es texto con un máximo de %d caracteres.", validarTexto(proveedor, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
+
+        while (!validarTexto(proveedor, numMaxCaracteres)) {
+            proveedor = JOptionPane.showInputDialog(
+                    this,
+                    "Existe un error --> Proveedor: texto máximo 30 caracteres.",
+                    "Solicitud del nombre del proveedor",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+        }
+
+        tfProveedor.setText(stock);
+        System.out.println(String.format("El nombre del proveedor %s es texto con un máximo de %d caracteres.", validarTexto(proveedor, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
+
+        // 7. Fecha de entrada: formato dd/mm/aaa. JSpinner
         // Se formatea la fecha según el patrón requerido dd/MM/yyyy
-        Date fechaSeleccionada = (Date) jSpinnerDateIn.getValue();
-        SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
-        String fechaFormateada = formateador.format(fechaSeleccionada);
+        Date fechaEntrada = (Date) jSpinnerDateIn.getValue();
+        SimpleDateFormat formateador = new SimpleDateFormat(formatoFecha);
+        String fechaFormateada = formateador.format(fechaEntrada);
         System.out.println(String.format("La fecha de entrada del artículo es: %s", fechaFormateada));
 
+        // 8. Garantía: radio buttons para elegir entre 12 meses, 24 meses o Sin garantía
+        do {
+            if (!rb12.isSelected() && !rb24.isSelected() && !rbSG.isSelected()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Garantía: Seleccionar al menos una opción.",
+                        "Error Garantía",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+        } while (!rb12.isSelected() && !rb24.isSelected() && !rbSG.isSelected());
+
+        String garantia = "";
         if (rb12.isSelected()) {
-            System.out.println(String.format("La garantía seleccionada ha sido: %s", rb12.getText()));
+            garantia = rb12.getText();
+            System.out.println(String.format("La garantía seleccionada ha sido: %s", garantia));
         } else if (rb24.isSelected()) {
-            System.out.println(String.format("La garantía seleccionada ha sido: %s", rb24.getText()));
+            garantia = rb24.getText();
+            System.out.println(String.format("La garantía seleccionada ha sido: %s", garantia));
         } else if (rbSG.isSelected()) {
-            System.out.println(String.format("La garantía seleccionada ha sido: %s", rbSG.getText()));
+            garantia = rbSG.getText();
+            System.out.println(String.format("La garantía seleccionada ha sido: %s", garantia));
         }
 
+        // 9. Estado del artículo (checkboxes): Nuevo, Reacondicionado, Oferta especial (pueden seleccionarse varias)
+        String estado = "";
+        //String estado1 = "", estado2 = "", estado3 = "";
         if (cbNuevo.isSelected()) {
-            System.out.println(String.format("El estado del artículo es: %s", cbNuevo.getText()));
+            estado = cbNuevo.getText();
+            System.out.println(String.format("El estado del artículo es: %s", estado));
         }
         if (cbReacondicionado.isSelected()) {
-            System.out.println(String.format("El estado del artículo es: %s", cbReacondicionado.getText()));
+            estado = cbReacondicionado.getText();
+            System.out.println(String.format("El estado del artículo es: %s", estado));
         }
         if (cbOfertaEsp.isSelected()) {
-            System.out.println(String.format("El estado del artículo es: %s", cbOfertaEsp.getText()));
+            estado = cbOfertaEsp.getText();
+            System.out.println(String.format("El estado del artículo es: %s", estado));
         }
+        //estado = String.format("(%s|%s|%s)", estado1, estado2, estado3);
 
+        // 10. Compatibilidad: Indicar sistemas operativos o plataformas compatibles. Al menos una (checkboxes) de: Windows, Ububtu, Debian
+        do {
+            if (!cbWindows.isSelected() && !cbUbuntu.isSelected() && !cbDebian.isSelected()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Compatibilidad: Indicar al menos un sistema operativo o plataforma compatible.",
+                        "Error Compatibilidad",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+        } while (!cbWindows.isSelected() && !cbUbuntu.isSelected() && !cbDebian.isSelected());
+
+        String compatibilidad = "";
+        //String compatibilidad1 = "", compatibilidad2 = "", compatibilidad3 = "";
         if (cbWindows.isSelected()) {
-            System.out.println(String.format("La plataforma soportada por el artículo es: %s", cbWindows.getText()));
+            compatibilidad = cbWindows.getText();
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
         }
         if (cbUbuntu.isSelected()) {
-            System.out.println(String.format("La plataforma soportada por el artículo es: %s", cbUbuntu.getText()));
+            compatibilidad = cbUbuntu.getText();
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
         }
         if (cbDebian.isSelected()) {
-            System.out.println(String.format("La plataforma soportada por el artículo es: %s", cbDebian.getText()));
+            compatibilidad = cbDebian.getText();
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
         }
+        //compatibilidad = String.format("(%s|%s|%s)", compatibilidad1, compatibilidad2, compatibilidad3);
 
-        System.out.println(String.format("La descripción detallada del artículo es: %s", taDescripcion.getText()));
-        
-        
-        // Mensajes de salida 
-        JFrame framePadre = null;
-        JOptionPane.showMessageDialog(
-            framePadre, 
-            "Bienvenido al sistema de validación.", 
-            "Mensaje de Inicio", 
-            JOptionPane.INFORMATION_MESSAGE
-        );
-        String nombreUsuario = JOptionPane.showInputDialog(
-            framePadre,
-            "Por favor, introduce tu nombre:",
-            "Solicitud de Datos",
-            JOptionPane.QUESTION_MESSAGE
-        );
-        if (nombreUsuario != null && !nombreUsuario.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(framePadre, "Hola, " + nombreUsuario + ".");
-        } else {
-            JOptionPane.showMessageDialog(framePadre, "No se introdujo un nombre.");
+        // 11. Descripción detallada: área de texto multilínea (JTextArea) para información extra.
+        String descripcionDet = taDescripcion.getText();
+        System.out.println(String.format("La descripción detallada del artículo es: %s", descripcionDet));
+        do {
+            if (taDescripcion.getText().isEmpty() || taDescripcion.getText() == null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Descripción detallada: Debe redactar una breve descripción del artículo.",
+                        "Error descripción detallada",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+        } while (taDescripcion.getText().isEmpty());
+
+        // Guardar registro en una lista de artículos
+        Articulo articulo = new Articulo(codigo, nombre, categoria, precio, stock, proveedor, fechaFormateada, garantia, estado, compatibilidad, descripcionDet);
+        listaArticulos.add(articulo.toString());
+        for (String str : listaArticulos) {
+            System.out.println(str);
         }
-        
-        
+        // Mensaje de artículo guardado
+        JOptionPane.showMessageDialog(this, "Registro guardado.");
+        // Limpiar todos los componentes
+        limpiarTodos();
+
     }//GEN-LAST:event_botonGuardarActionPerformed
 
     private void botonSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSalirActionPerformed
         // TODO add your handling code here:
-        System.exit(0);
+
+        if (contarCamposModificados(this.getContentPane()) > 0) {
+            // Mensajes de salida 
+            int seleccion = JOptionPane.showConfirmDialog(
+                    this,
+                    "Existen campos completados sin guardar ¿desea salir sin guardar cambios?",
+                    "Salir del inventario",
+                    JOptionPane.YES_NO_OPTION
+            );
+            // Si se selecciona la opción Sí, se procede a salir del aplicativo sin guardar cambios
+            if (seleccion == JOptionPane.YES_OPTION) {
+                this.dispose();
+
+                // Limpiar todos los componentes
+                limpiarTodos();
+            }
+        } else {
+            this.dispose();
+        }
     }//GEN-LAST:event_botonSalirActionPerformed
 
     /**
@@ -444,7 +594,7 @@ public class NewJDialog extends javax.swing.JDialog {
      */
     public boolean validarTexto(String texto, int numCaracteres) {
 
-        // Definir la Expresión Regular para chequear el nombre del artículo, texto, máximo 50 caracteres
+        // Definir la Expresión Regular para chequear el nombre del artículo, texto, entre uno y un máximo de 50 caracteres
         String regex = String.format("^.{1,%d}$", numCaracteres);
 
         return texto.matches(regex);
@@ -495,6 +645,106 @@ public class NewJDialog extends javax.swing.JDialog {
         return texto.matches(regex);
     }
 
+    /**
+     * Limpia todos los campos de entrada dentro de un contenedor dado.
+     *
+     * @param contenedor
+     */
+    public void limpiarCampos(Container contenedor) {
+
+        // Se crea una lista de componentes que contiene un contenedor
+        Component[] componentes = contenedor.getComponents();
+
+        // Por cada componente del contenedor, dependiendo de qué tipo de componente sea lo limpia o desmarca
+        for (Component componente : componentes) {
+
+            if (componente instanceof JTextField) {
+                ((JTextField) componente).setText("");
+            } else if (componente instanceof JCheckBox) {
+                ((JCheckBox) componente).setSelected(false);
+            } else if (componente instanceof JComboBox) {
+                ((JComboBox) componente).setSelectedIndex(0);
+            } else if (componente instanceof JSpinner) {
+                ((JSpinner) componente).setValue(new Date());
+            }
+        }
+    }
+
+    /*
+     * Método para limpiar todos los componestes de un contenedor y un grupo de radio botones así como el text area.
+     */
+    public void limpiarTodos() {
+
+        limpiarCampos(this.getContentPane());
+        buttonGroup1.clearSelection();
+        taDescripcion.setText("");
+
+    }
+
+    /**
+     * Limpia todos los campos de entrada dentro de un contenedor dado.
+     *
+     * @param contenedor
+     * @return contador número entero de número de campos que
+     */
+    public int contarCamposModificados(Container contenedor) {
+
+        // Se crea una lista de componentes que contiene un contenedor
+        Component[] componentes = contenedor.getComponents();
+        // contador
+        int contador = 0;
+
+        // Por cada componente del contenedor, dependiendo de qué tipo de componente sea lo limpia o desmarca
+        for (Component componente : componentes) {
+
+            if (componente instanceof JTextField && !((JTextField) componente).getText().isEmpty()) {
+                contador++;
+            } else if (componente instanceof JCheckBox && ((JCheckBox) componente).isSelected()) {
+                contador++;
+            } else if (componente instanceof JRadioButton && ((JRadioButton) componente).isSelected()) {
+                contador++;
+            }
+        }
+        return contador;
+    }
+
+    public class Articulo {
+
+        private String codigo;
+        private String nombre;
+        private String categoria;
+        private String precio;
+        private String stock;
+        private String proveedor;
+        private String fechaEntrada;
+        private String garantia;
+        private String estado;
+        private String compatibilidad;
+        private String descripcionDetallada;
+
+        public Articulo(String codigo, String nombre, String categoria, String precio, String stock, String proveedor, String fechaEntrada, String garantia, String estado, String compatibilidad, String descripcionDetallada) {
+            this.codigo = codigo;
+            this.nombre = nombre;
+            this.categoria = categoria;
+            this.precio = precio;
+            this.stock = stock;
+            this.proveedor = proveedor;
+            this.fechaEntrada = fechaEntrada;
+            this.garantia = garantia;
+            this.estado = estado;
+            this.compatibilidad = compatibilidad;
+            this.descripcionDetallada = descripcionDetallada;
+
+        }
+
+        @Override
+        public String toString() {
+
+            return String.format("Artículo [Código: %s, Nombre: %s, Categoría: %s, Precio: %s, Stock: %s, Proveedor: %s, Fecha entrada: %s, Garantía: %s, Estado: %s, Compatibilidad: %s, Descripción detallada: %s]", this.codigo, this.nombre, this.categoria, this.precio, this.stock, this.proveedor, this.fechaEntrada, this.garantia, this.estado, this.compatibilidad, this.descripcionDetallada);
+
+        }
+
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonGuardar;

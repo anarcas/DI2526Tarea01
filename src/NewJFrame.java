@@ -1,4 +1,6 @@
 
+import java.awt.Color;
+import java.awt.Font;
 import javax.swing.ImageIcon;
 
 
@@ -18,6 +20,11 @@ import javax.swing.ImageIcon;
 public class NewJFrame extends javax.swing.JFrame {
 
     NewJDialog dialogo = new NewJDialog(this, true);
+    
+    // Colores
+    Color azulOscuro = new Color(0, 19, 59);
+    Color azulClaro = new Color(0, 148, 181);
+    Color verde = new Color(2,196,178);
         
     
     /**
@@ -25,6 +32,14 @@ public class NewJFrame extends javax.swing.JFrame {
      */
     public NewJFrame() {
         initComponents();
+        // Color de fondo del jFrame
+        this.getContentPane().setBackground(azulOscuro);
+        jButtonAnadirArticulo.setBackground(verde);
+        jButtonAnadirArticulo.setForeground(azulOscuro);
+        jButtonAnadirArticulo.setFont(new Font("Lucida Console", Font.BOLD, 11));
+        jMenu1.setFont(new Font("Lucida Console", Font.BOLD, 11));
+        jMenuItem1.setFont(new Font("Lucida Console", Font.PLAIN, 11));
+        jMenuItem2.setFont(new Font("Lucida Console", Font.PLAIN, 11));
     }
 
     /**
@@ -46,6 +61,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jButtonAnadirArticulo.setForeground(new java.awt.Color(0, 19, 59));
         jButtonAnadirArticulo.setText("Añadir un artículo");
         jButtonAnadirArticulo.setToolTipText("Pulsa sobre el botón para añadir un artículo");
         jButtonAnadirArticulo.addActionListener(new java.awt.event.ActionListener() {
@@ -88,27 +104,22 @@ public class NewJFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButtonAnadirArticulo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButtonAnadirArticulo, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(imagenLogo)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(imagenLogo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(imagenLogo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addGroup(layout.createSequentialGroup()
-                .addGap(34, 34, 34)
+                .addGap(53, 53, 53)
                 .addComponent(jButtonAnadirArticulo, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButtonAnadirArticuloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnadirArticuloActionPerformed
-        // TODO add your handling code here:
-        dialogo.setVisible(true);
-    }//GEN-LAST:event_jButtonAnadirArticuloActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
@@ -119,6 +130,11 @@ public class NewJFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jButtonAnadirArticuloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnadirArticuloActionPerformed
+        // TODO add your handling code here:
+        dialogo.setVisible(true);
+    }//GEN-LAST:event_jButtonAnadirArticuloActionPerformed
 
     /**
      * @param args the command line arguments
