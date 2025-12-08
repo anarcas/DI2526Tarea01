@@ -1,45 +1,43 @@
 
 import java.awt.Color;
 import java.awt.Font;
-import javax.swing.ImageIcon;
-
-
-
-
 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
+ * Ventana principal (JFrame) de la aplicación. Sirve como el contenedor de
+ * nivel superior y la interfaz principal desde donde se gestionan y lanzan
+ * todos los demás módulos de la aplicación, como los diálogos de alta o
+ * consulta.
  *
- * @author anaranjo
+ * @author Antonio Naranjo Castillo
  */
-public class NewJFrame extends javax.swing.JFrame {
+public class FormularioPrincipalJFrame extends javax.swing.JFrame {
 
-    NewJDialog dialogo = new NewJDialog(this, true);
-    
+    // Declaración/instanciación de variables
+    AltaArticuloJDialog dialogo = new AltaArticuloJDialog(this, true);
+
     // Colores
-    Color azulOscuro = new Color(0, 19, 59);
-    Color azulClaro = new Color(0, 148, 181);
-    Color verde = new Color(2,196,178);
-        
-    
+    public static Color azulOscuro = new Color(0, 19, 59);
+    public static Color azulClaro = new Color(0, 148, 181);
+    public static Color verde = new Color(2, 196, 178);
+
     /**
-     * Creates new form NewJFrame
+     * Constructor del JFrame
      */
-    public NewJFrame() {
+    public FormularioPrincipalJFrame() {
         initComponents();
-        // Color de fondo del jFrame
-        this.getContentPane().setBackground(azulOscuro);
-        jButtonAnadirArticulo.setBackground(verde);
-        jButtonAnadirArticulo.setForeground(azulOscuro);
+        // Formateo del formulario principal
+        this.getContentPane().setBackground(FormularioPrincipalJFrame.azulOscuro);
+        jButtonAnadirArticulo.setBackground(FormularioPrincipalJFrame.verde);
+        jButtonAnadirArticulo.setForeground(FormularioPrincipalJFrame.azulOscuro);
         jButtonAnadirArticulo.setFont(new Font("Lucida Console", Font.BOLD, 11));
-        jMenu1.setFont(new Font("Lucida Console", Font.BOLD, 11));
-        jMenuItem1.setFont(new Font("Lucida Console", Font.PLAIN, 11));
-        jMenuItem2.setFont(new Font("Lucida Console", Font.PLAIN, 11));
+        jMenuPrincipal.setFont(new Font("Lucida Console", Font.BOLD, 11));
+        jMenuItemAnadir.setFont(new Font("Lucida Console", Font.PLAIN, 11));
+        jMenuItemSalir.setFont(new Font("Lucida Console", Font.PLAIN, 11));
     }
 
     /**
@@ -54,10 +52,10 @@ public class NewJFrame extends javax.swing.JFrame {
         jButtonAnadirArticulo = new javax.swing.JButton();
         imagenLogo = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuPrincipal = new javax.swing.JMenu();
+        jMenuItemAnadir = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItemSalir = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,29 +70,29 @@ public class NewJFrame extends javax.swing.JFrame {
 
         imagenLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/logoATM.png"))); // NOI18N
 
-        jMenu1.setText("Gestión de inventario");
-        jMenu1.setToolTipText("Menú gestión de inventario");
+        jMenuPrincipal.setText("Gestión de inventario");
+        jMenuPrincipal.setToolTipText("Menú gestión de inventario");
 
-        jMenuItem1.setText("Añadir Artículo");
-        jMenuItem1.setToolTipText("Pulsar para añadir un artículo nuevo");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItemAnadir.setText("Añadir Artículo");
+        jMenuItemAnadir.setToolTipText("Pulsar para añadir un artículo nuevo");
+        jMenuItemAnadir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                jMenuItemAnadirActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem1);
-        jMenu1.add(jSeparator1);
+        jMenuPrincipal.add(jMenuItemAnadir);
+        jMenuPrincipal.add(jSeparator1);
 
-        jMenuItem2.setText("Salir");
-        jMenuItem2.setToolTipText("Pulsar para salir del programa");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItemSalir.setText("Salir");
+        jMenuItemSalir.setToolTipText("Pulsar para salir del programa");
+        jMenuItemSalir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                jMenuItemSalirActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        jMenuPrincipal.add(jMenuItemSalir);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(jMenuPrincipal);
 
         setJMenuBar(jMenuBar1);
 
@@ -121,22 +119,44 @@ public class NewJFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    /**
+     * Maneja el evento de acción del elemento de menú 1. Se encarga de
+     * instanciar y mostrar el diálogo de alta (AltaArticuloJDialog).
+     *
+     * @param evt El evento de acción que se dispara al seleccionar el elemento
+     * de menú.
+     */
+    private void jMenuItemAnadirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAnadirActionPerformed
         // TODO add your handling code here:
         dialogo.setVisible(true);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_jMenuItemAnadirActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    /**
+     * Maneja el evento de acción del elemento de menú 2. Salir del programa con
+     * éxito.
+     *
+     * @param evt El evento de acción que se dispara al seleccionar el elemento
+     * de menú.
+     */
+    private void jMenuItemSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSalirActionPerformed
         // TODO add your handling code here:
         System.exit(0);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_jMenuItemSalirActionPerformed
 
+    /**
+     * Maneja el evento de acción cuando se pulsa el botón "Añadir Artículo". Se
+     * encarga de instanciar y mostrar el diálogo de alta (AltaArticuloJDialog).
+     *
+     * @param evt El evento de acción que se dispara al pulsar el botón.
+     */
     private void jButtonAnadirArticuloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAnadirArticuloActionPerformed
         // TODO add your handling code here:
         dialogo.setVisible(true);
     }//GEN-LAST:event_jButtonAnadirArticuloActionPerformed
 
     /**
+     * Método principal de JFrame
+     *
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -153,20 +173,20 @@ public class NewJFrame extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormularioPrincipalJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormularioPrincipalJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormularioPrincipalJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormularioPrincipalJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new NewJFrame().setVisible(true);
+                new FormularioPrincipalJFrame().setVisible(true);
             }
         });
     }
@@ -174,10 +194,10 @@ public class NewJFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel imagenLogo;
     private javax.swing.JButton jButtonAnadirArticulo;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItemAnadir;
+    private javax.swing.JMenuItem jMenuItemSalir;
+    private javax.swing.JMenu jMenuPrincipal;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }

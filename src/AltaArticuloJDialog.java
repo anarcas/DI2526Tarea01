@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.text.SimpleDateFormat;
@@ -7,11 +8,11 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DateEditor;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /*
@@ -20,24 +21,57 @@ import javax.swing.JTextField;
  * and open the template in the editor.
  */
 /**
+ * Diálogo de interfaz de usuario (JDialog) para la gestión del alta de nuevos
+ * artículos en el sistema de inventario. Permite al usuario ingresar y validar
+ * todos los datos necesarios para crear una nueva instancia de la clase.
  *
- * @author anaranjo
+ * @author Antonio Naranjo Castillo
  */
-public class NewJDialog extends javax.swing.JDialog {
+public class AltaArticuloJDialog extends javax.swing.JDialog {
 
-    String formatoFecha = "dd/MM/yyyy";
-    DateEditor editorFecha;
+    // Declaración e iniciación de varialbles
+    String codigo;
+    String nombre;
+    String categoria;
+    String precio;
+    String stock;
+    String proveedor;
+    String fechaFormateada;
+    String garantia = "";
+    String estado = "";
+    String compatibilidad = "";
+    String descripcionDet;
+
+    Articulo articulo;
     List<String> listaArticulos = new ArrayList<>();
 
+    // Variable estática para recuentar el número de artículos creados
+    private static int articulosCreados;
+
+    // Declaración de variables auxiliares
+    int numMaxCaracteres;
+    int itemSeleccionado;
+    String formatoFecha = "dd/MM/yyyy";
+    DateEditor editorFecha;
+    Date fechaEntrada;
+    SimpleDateFormat formateador;
+
     /**
-     * Creates new form NewJDialog
+     * Constructor del JDialog
      *
-     * @param parent
-     * @param modal
+     * @param parent La ventana (JFrame) padre de la que depende este diálogo
+     * @param modal Indica si el diálogo debe ser modal (true, bloqueando la
+     * ventana padre) o no (false)
      */
-    public NewJDialog(java.awt.Frame parent, boolean modal) {
+    public AltaArticuloJDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+
+        // Formateando el JDialog
+        this.getContentPane().setBackground(FormularioPrincipalJFrame.verde);
+        formateaPanel(jPanelGarantia);
+        formateaPanel(jPanelEstado);
+        formateaPanel(jPanelComp);
 
         // Se formatea la representación que se muestra de la fecha de entrada del artículo en el constructor del JDialog
         editorFecha = new DateEditor(jSpinnerDateIn, formatoFecha);
@@ -64,9 +98,6 @@ public class NewJDialog extends javax.swing.JDialog {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         botonGuardar = new javax.swing.JButton();
         botonSalir = new javax.swing.JButton();
@@ -76,17 +107,23 @@ public class NewJDialog extends javax.swing.JDialog {
         tfStock = new javax.swing.JTextField();
         tfProveedor = new javax.swing.JTextField();
         jSpinnerDateIn = new javax.swing.JSpinner();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        taDescripcion = new javax.swing.JTextArea();
+        jPanelGarantia = new javax.swing.JPanel();
+        jLabelGarantia = new javax.swing.JLabel();
         rb12 = new javax.swing.JRadioButton();
         rb24 = new javax.swing.JRadioButton();
         rbSG = new javax.swing.JRadioButton();
+        jPanelEstado = new javax.swing.JPanel();
+        jLabelEstado = new javax.swing.JLabel();
         cbNuevo = new javax.swing.JCheckBox();
         cbReacondicionado = new javax.swing.JCheckBox();
         cbOfertaEsp = new javax.swing.JCheckBox();
+        jPanelComp = new javax.swing.JPanel();
+        jLabelComp = new javax.swing.JLabel();
+        cbDebian = new javax.swing.JCheckBox();
         cbWindows = new javax.swing.JCheckBox();
         cbUbuntu = new javax.swing.JCheckBox();
-        cbDebian = new javax.swing.JCheckBox();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        taDescripcion = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -106,12 +143,6 @@ public class NewJDialog extends javax.swing.JDialog {
         jLabel7.setText("Proveedor:");
 
         jLabel8.setText("Fecha de entrada:");
-
-        jLabel9.setText("Garantía:");
-
-        jLabel10.setText("Estado del artículo");
-
-        jLabel11.setText("Compatibilidad:");
 
         jLabel12.setText("Descripción detallada:");
 
@@ -143,6 +174,15 @@ public class NewJDialog extends javax.swing.JDialog {
         jSpinnerDateIn.setModel(new javax.swing.SpinnerDateModel());
         jSpinnerDateIn.setToolTipText("formato dd/mm/aaaa");
 
+        taDescripcion.setColumns(20);
+        taDescripcion.setRows(5);
+        taDescripcion.setToolTipText("Descripción detallada del artículo");
+        jScrollPane1.setViewportView(taDescripcion);
+
+        jPanelGarantia.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabelGarantia.setText("Garantía:");
+
         buttonGroup1.add(rb12);
         rb12.setText("12 meses");
         rb12.setToolTipText("Garantía de 12 meses");
@@ -155,6 +195,37 @@ public class NewJDialog extends javax.swing.JDialog {
         rbSG.setText("Sin garantía");
         rbSG.setToolTipText("Sin garantía");
 
+        javax.swing.GroupLayout jPanelGarantiaLayout = new javax.swing.GroupLayout(jPanelGarantia);
+        jPanelGarantia.setLayout(jPanelGarantiaLayout);
+        jPanelGarantiaLayout.setHorizontalGroup(
+            jPanelGarantiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelGarantiaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelGarantia)
+                .addGap(96, 96, 96)
+                .addComponent(rb12)
+                .addGap(38, 38, 38)
+                .addComponent(rb24)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(rbSG)
+                .addGap(46, 46, 46))
+        );
+        jPanelGarantiaLayout.setVerticalGroup(
+            jPanelGarantiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelGarantiaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelGarantiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelGarantia)
+                    .addComponent(rb12)
+                    .addComponent(rb24)
+                    .addComponent(rbSG))
+                .addGap(0, 12, Short.MAX_VALUE))
+        );
+
+        jPanelEstado.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabelEstado.setText("Estado del artículo:");
+
         cbNuevo.setText("Nuevo");
         cbNuevo.setToolTipText("Artículo nuevo");
 
@@ -164,19 +235,72 @@ public class NewJDialog extends javax.swing.JDialog {
         cbOfertaEsp.setText("Oferta especial");
         cbOfertaEsp.setToolTipText("Artículo oferta especial");
 
+        javax.swing.GroupLayout jPanelEstadoLayout = new javax.swing.GroupLayout(jPanelEstado);
+        jPanelEstado.setLayout(jPanelEstadoLayout);
+        jPanelEstadoLayout.setHorizontalGroup(
+            jPanelEstadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelEstadoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelEstado)
+                .addGap(50, 50, 50)
+                .addComponent(cbNuevo)
+                .addGap(49, 49, 49)
+                .addComponent(cbReacondicionado)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(cbOfertaEsp)
+                .addGap(29, 29, 29))
+        );
+        jPanelEstadoLayout.setVerticalGroup(
+            jPanelEstadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelEstadoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelEstadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbOfertaEsp)
+                    .addComponent(cbReacondicionado)
+                    .addComponent(cbNuevo)
+                    .addComponent(jLabelEstado))
+                .addContainerGap(10, Short.MAX_VALUE))
+        );
+
+        jPanelComp.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jLabelComp.setText("Compatibilidad:");
+
+        cbDebian.setText("Debian");
+        cbDebian.setToolTipText("Plataforma soportada Debian");
+
         cbWindows.setText("Windows");
         cbWindows.setToolTipText("Plataforma soportada Windows");
 
         cbUbuntu.setText("Ubuntu");
         cbUbuntu.setToolTipText("Plataforma soportada Ubuntu");
 
-        cbDebian.setText("Debian");
-        cbDebian.setToolTipText("Plataforma soportada Debian");
-
-        taDescripcion.setColumns(20);
-        taDescripcion.setRows(5);
-        taDescripcion.setToolTipText("Descripción detallada del artículo");
-        jScrollPane1.setViewportView(taDescripcion);
+        javax.swing.GroupLayout jPanelCompLayout = new javax.swing.GroupLayout(jPanelComp);
+        jPanelComp.setLayout(jPanelCompLayout);
+        jPanelCompLayout.setHorizontalGroup(
+            jPanelCompLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelCompLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelComp)
+                .addGap(71, 71, 71)
+                .addComponent(cbDebian)
+                .addGap(47, 47, 47)
+                .addComponent(cbWindows)
+                .addGap(75, 75, 75)
+                .addComponent(cbUbuntu)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanelCompLayout.setVerticalGroup(
+            jPanelCompLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelCompLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanelCompLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbUbuntu)
+                    .addComponent(cbWindows)
+                    .addComponent(cbDebian)
+                    .addComponent(jLabelComp))
+                .addContainerGap(10, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -185,57 +309,40 @@ public class NewJDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel12)
-                    .addComponent(jLabel11)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel7)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel3))
-                .addGap(44, 44, 44)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(tfCodigo)
-                            .addComponent(tfNombre)
-                            .addComponent(cbCategoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(tfPrecio, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tfStock, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tfProveedor, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSpinnerDateIn)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(34, 34, 34))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(rb12)
-                            .addComponent(cbNuevo)
-                            .addComponent(cbWindows))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel12)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel3))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(105, 105, 105)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(tfCodigo)
+                                    .addComponent(tfNombre)
+                                    .addComponent(cbCategoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(tfPrecio, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(tfStock, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(tfProveedor, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jSpinnerDateIn))
+                                .addGap(68, 68, 68))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(rb24)
-                                .addGap(55, 55, 55))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cbUbuntu)
-                                    .addComponent(cbReacondicionado))
-                                .addGap(18, 18, 18)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbOfertaEsp)
-                            .addComponent(rbSG)
-                            .addComponent(cbDebian))
-                        .addGap(45, 45, 45))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addComponent(botonGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(96, 96, 96)
-                        .addComponent(botonSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(botonGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(204, 204, 204)
+                                        .addComponent(botonSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(jPanelComp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelEstado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelGarantia, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(38, 38, 38))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -269,28 +376,16 @@ public class NewJDialog extends javax.swing.JDialog {
                     .addComponent(jLabel8)
                     .addComponent(jSpinnerDateIn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(rb12)
-                    .addComponent(rb24)
-                    .addComponent(rbSG))
+                .addComponent(jPanelGarantia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(cbNuevo)
-                    .addComponent(cbReacondicionado)
-                    .addComponent(cbOfertaEsp))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(cbWindows)
-                    .addComponent(cbUbuntu)
-                    .addComponent(cbDebian))
+                .addComponent(jPanelEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 9, 9)
+                .addComponent(jPanelComp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel12)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(botonGuardar)
                     .addComponent(botonSalir))
@@ -300,13 +395,18 @@ public class NewJDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Maneja el evento de acción cuando se pulsa el botón "Guardar". Se encarga
+     * de realizar todas las validaciones de los campos, procesar la lógica de
+     * negocio y confirmar el almacenamiento de los datos.
+     *
+     * @param evt El evento de acción que se dispara al pulsar el botón.
+     */
     private void botonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonGuardarActionPerformed
         // TODO add your handling code here:
 
         // 1. Código de artículo: alfanumérico, máximo 10 caracteres.
-        String codigo = tfCodigo.getText();
-        System.out.println(String.format("El código %s es alfanumérico con un máximo de diez caracteres.", validarCodigoAlfanumerico(codigo) ? "SI" : "NO"));
-
+        codigo = tfCodigo.getText();
         while (!validarCodigoAlfanumerico(codigo)) {
             codigo = JOptionPane.showInputDialog(
                     this,
@@ -315,16 +415,13 @@ public class NewJDialog extends javax.swing.JDialog {
                     JOptionPane.QUESTION_MESSAGE
             );
         }
-
+        // Se muestra el contenido en el componentes y se imprime el resultado por consola
         tfCodigo.setText(codigo);
         System.out.println(String.format("El código %s es alfanumérico con un máximo de diez caracteres.", validarCodigoAlfanumerico(codigo) ? "SI" : "NO"));
 
         // 2. Nombre del artículo: texto, máximo 50 caracteres.
-        int numMaxCaracteres;
         numMaxCaracteres = 50;
-        String nombre = tfNombre.getText();
-        System.out.println(String.format("El nombre del artículo %s es texto con un máximo de %d caracteres.", validarTexto(nombre, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
-
+        nombre = tfNombre.getText();
         while (!validarTexto(nombre, numMaxCaracteres)) {
             nombre = JOptionPane.showInputDialog(
                     this,
@@ -333,21 +430,17 @@ public class NewJDialog extends javax.swing.JDialog {
                     JOptionPane.QUESTION_MESSAGE
             );
         }
-
+        // Se muestra el contenido en el componentes y se imprime el resultado por consola
         tfNombre.setText(nombre);
         System.out.println(String.format("El nombre del artículo %s es texto con un máximo de %d caracteres.", validarTexto(nombre, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
 
         // 3. Categoría: lista desplegable con opciones como: Ordenador, Portátil, Monitor, Impresora, Accesorio, Componente interno, Otro.
-        int itemSeleccionado;
         itemSeleccionado = cbCategoria.getSelectedIndex();
-        String categoria;
         categoria = cbCategoria.getItemAt(itemSeleccionado).toString();
         System.out.println(String.format("La categoría seleccionada ha sido: %s", categoria));
 
         // 4. Precio unitario: número con 2 decimales
-        String precio = tfPrecio.getText();
-        System.out.println(String.format("El número introducido %s es un número con dos decimales.", validarNumeroDosDecimales(precio) ? "SI" : "NO"));
-
+        precio = tfPrecio.getText();
         while (!validarNumeroDosDecimales(precio)) {
             precio = JOptionPane.showInputDialog(
                     this,
@@ -356,14 +449,12 @@ public class NewJDialog extends javax.swing.JDialog {
                     JOptionPane.QUESTION_MESSAGE
             );
         }
-
+        // Se muestra el contenido en el componentes y se imprime el resultado por consola
         tfPrecio.setText(precio);
-        System.out.println(String.format("El número introducido %s es un número con dos decimales.", validarNumeroDosDecimales(precio) ? "SI" : "NO"));
+        System.out.println(String.format("El precio introducido %s es un número con dos decimales y menor de 10000.00 €.", validarNumeroDosDecimales(precio) ? "SI" : "NO"));
 
         // 5. Stock disponible: número entero.
-        String stock = tfStock.getText();
-        System.out.println(String.format("El número introducido %s es un número entero.", validarEntero(stock) ? "SI" : "NO"));
-
+        stock = tfStock.getText();
         while (!validarEntero(stock)) {
             stock = JOptionPane.showInputDialog(
                     this,
@@ -372,15 +463,13 @@ public class NewJDialog extends javax.swing.JDialog {
                     JOptionPane.QUESTION_MESSAGE
             );
         }
-
+        // Se muestra el contenido en el componentes y se imprime el resultado por consola
         tfStock.setText(stock);
-        System.out.println(String.format("El número introducido %s es un número entero.", validarEntero(stock) ? "SI" : "NO"));
+        System.out.println(String.format("El número de stock introducido %s es un número entero.", validarEntero(stock) ? "SI" : "NO"));
 
         // 6. Proveedor: texto máximo 30 caracteres.
         numMaxCaracteres = 30;
-        String proveedor = tfProveedor.getText();
-        System.out.println(String.format("El nombre del proveedor %s es texto con un máximo de %d caracteres.", validarTexto(proveedor, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
-
+        proveedor = tfProveedor.getText();
         while (!validarTexto(proveedor, numMaxCaracteres)) {
             proveedor = JOptionPane.showInputDialog(
                     this,
@@ -389,15 +478,15 @@ public class NewJDialog extends javax.swing.JDialog {
                     JOptionPane.QUESTION_MESSAGE
             );
         }
-
+        // Se muestra el contenido en el componentes y se imprime el resultado por consola
         tfProveedor.setText(stock);
         System.out.println(String.format("El nombre del proveedor %s es texto con un máximo de %d caracteres.", validarTexto(proveedor, numMaxCaracteres) ? "SI" : "NO", numMaxCaracteres));
 
         // 7. Fecha de entrada: formato dd/mm/aaa. JSpinner
         // Se formatea la fecha según el patrón requerido dd/MM/yyyy
-        Date fechaEntrada = (Date) jSpinnerDateIn.getValue();
-        SimpleDateFormat formateador = new SimpleDateFormat(formatoFecha);
-        String fechaFormateada = formateador.format(fechaEntrada);
+        fechaEntrada = (Date) jSpinnerDateIn.getValue();
+        formateador = new SimpleDateFormat(formatoFecha);
+        fechaFormateada = formateador.format(fechaEntrada);
         System.out.println(String.format("La fecha de entrada del artículo es: %s", fechaFormateada));
 
         // 8. Garantía: radio buttons para elegir entre 12 meses, 24 meses o Sin garantía
@@ -413,7 +502,7 @@ public class NewJDialog extends javax.swing.JDialog {
             }
         } while (!rb12.isSelected() && !rb24.isSelected() && !rbSG.isSelected());
 
-        String garantia = "";
+        // Se muestra el componente seleccionado y se imprime el resultado por consola
         if (rb12.isSelected()) {
             garantia = rb12.getText();
             System.out.println(String.format("La garantía seleccionada ha sido: %s", garantia));
@@ -426,21 +515,29 @@ public class NewJDialog extends javax.swing.JDialog {
         }
 
         // 9. Estado del artículo (checkboxes): Nuevo, Reacondicionado, Oferta especial (pueden seleccionarse varias)
-        String estado = "";
-        //String estado1 = "", estado2 = "", estado3 = "";
-        if (cbNuevo.isSelected()) {
+        // Se imprime el resultado por consola de los componentes seleccionados
+        if (cbNuevo.isSelected() & cbReacondicionado.isSelected() & cbOfertaEsp.isSelected()) {
+            estado = String.format("%s + %s + %s", cbNuevo.getText(), cbReacondicionado.getText(), cbOfertaEsp.getText());
+            System.out.println(String.format("El estado del artículo es: %s", estado));
+        } else if (cbReacondicionado.isSelected() & cbOfertaEsp.isSelected()) {
+            estado = String.format("%s + %s", cbReacondicionado.getText(), cbOfertaEsp.getText());
+            System.out.println(String.format("El estado del artículo es: %s", estado));
+        } else if (cbNuevo.isSelected() & cbOfertaEsp.isSelected()) {
+            estado = String.format("%s + %s", cbNuevo.getText(), cbOfertaEsp.getText());
+            System.out.println(String.format("El estado del artículo es: %s", estado));
+        } else if (cbNuevo.isSelected() & cbReacondicionado.isSelected()) {
+            estado = String.format("%s + %s", cbNuevo.getText(), cbReacondicionado.getText());
+            System.out.println(String.format("El estado del artículo es: %s", estado));
+        } else if (cbOfertaEsp.isSelected()) {
+            estado = cbOfertaEsp.getText();
+            System.out.println(String.format("El estado del artículo es: %s", estado));
+        } else if (cbReacondicionado.isSelected()) {
+            estado = cbReacondicionado.getText();
+            System.out.println(String.format("El estado del artículo es: %s", estado));
+        } else if (cbNuevo.isSelected()) {
             estado = cbNuevo.getText();
             System.out.println(String.format("El estado del artículo es: %s", estado));
         }
-        if (cbReacondicionado.isSelected()) {
-            estado = cbReacondicionado.getText();
-            System.out.println(String.format("El estado del artículo es: %s", estado));
-        }
-        if (cbOfertaEsp.isSelected()) {
-            estado = cbOfertaEsp.getText();
-            System.out.println(String.format("El estado del artículo es: %s", estado));
-        }
-        //estado = String.format("(%s|%s|%s)", estado1, estado2, estado3);
 
         // 10. Compatibilidad: Indicar sistemas operativos o plataformas compatibles. Al menos una (checkboxes) de: Windows, Ububtu, Debian
         do {
@@ -455,25 +552,31 @@ public class NewJDialog extends javax.swing.JDialog {
             }
         } while (!cbWindows.isSelected() && !cbUbuntu.isSelected() && !cbDebian.isSelected());
 
-        String compatibilidad = "";
-        //String compatibilidad1 = "", compatibilidad2 = "", compatibilidad3 = "";
-        if (cbWindows.isSelected()) {
+        // Se imprime el resultado por consola de los componentes seleccionados
+        if (cbWindows.isSelected() & cbUbuntu.isSelected() & cbDebian.isSelected()) {
+            compatibilidad = String.format("%s + %s + %s", cbWindows.getText(), cbUbuntu.getText(), cbDebian.getText());
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
+        } else if (cbUbuntu.isSelected() & cbDebian.isSelected()) {
+            compatibilidad = String.format("%s + %s", cbUbuntu.getText(), cbDebian.getText());
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
+        } else if (cbWindows.isSelected() & cbDebian.isSelected()) {
+            compatibilidad = String.format("%s + %s", cbWindows.getText(), cbDebian.getText());
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
+        } else if (cbWindows.isSelected() & cbUbuntu.isSelected()) {
+            compatibilidad = String.format("%s + %s", cbWindows.getText(), cbUbuntu.getText());
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
+        } else if (cbDebian.isSelected()) {
+            compatibilidad = cbDebian.getText();
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
+        } else if (cbUbuntu.isSelected()) {
+            compatibilidad = cbUbuntu.getText();
+            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
+        } else if (cbWindows.isSelected()) {
             compatibilidad = cbWindows.getText();
             System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
         }
-        if (cbUbuntu.isSelected()) {
-            compatibilidad = cbUbuntu.getText();
-            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
-        }
-        if (cbDebian.isSelected()) {
-            compatibilidad = cbDebian.getText();
-            System.out.println(String.format("La plataforma soportada por el artículo es: %s", compatibilidad));
-        }
-        //compatibilidad = String.format("(%s|%s|%s)", compatibilidad1, compatibilidad2, compatibilidad3);
 
         // 11. Descripción detallada: área de texto multilínea (JTextArea) para información extra.
-        String descripcionDet = taDescripcion.getText();
-        System.out.println(String.format("La descripción detallada del artículo es: %s", descripcionDet));
         do {
             if (taDescripcion.getText().isEmpty() || taDescripcion.getText() == null) {
                 JOptionPane.showMessageDialog(
@@ -485,23 +588,40 @@ public class NewJDialog extends javax.swing.JDialog {
                 return;
             }
         } while (taDescripcion.getText().isEmpty());
+        // Se imprime el resultado por consola de los componentes seleccionados
+        descripcionDet = taDescripcion.getText();
+        System.out.println(String.format("La descripción detallada del artículo es: %s", descripcionDet));
 
         // Guardar registro en una lista de artículos
-        Articulo articulo = new Articulo(codigo, nombre, categoria, precio, stock, proveedor, fechaFormateada, garantia, estado, compatibilidad, descripcionDet);
+        articulo = new Articulo(codigo, nombre, categoria, precio, stock, proveedor, fechaFormateada, garantia, estado, compatibilidad, descripcionDet);
         listaArticulos.add(articulo.toString());
+
+        // Mensaje salida
+        JOptionPane.showMessageDialog(this, "Registro guardado.");
+        // Se muestran los artículos almacenados en la ArrayList por consola
+        System.out.println("Lista de artículos:");
         for (String str : listaArticulos) {
             System.out.println(str);
         }
-        // Mensaje de artículo guardado
-        JOptionPane.showMessageDialog(this, "Registro guardado.");
+        System.out.println("---------------");
+        // A modo de comprobación, se muestra el último artículo almacenado por showMessageDialog
+        JOptionPane.showMessageDialog(this, listaArticulos.get(listaArticulos.size() - 1));
+
         // Limpiar todos los componentes
         limpiarTodos();
 
     }//GEN-LAST:event_botonGuardarActionPerformed
 
+    /**
+     * Maneja el evento de acción cuando se pulsa el botón "Salir". Se encarga
+     * de cerrar el diálogo actual (JDialog) y liberar sus recursos.
+     *
+     * @param evt El evento de acción que se dispara al pulsar el botón.
+     */
     private void botonSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonSalirActionPerformed
         // TODO add your handling code here:
 
+        // Se recuentan los campos modificados y se evalua la respuesta del usuario mediante un JOptionPane
         if (contarCamposModificados(this.getContentPane()) > 0) {
             // Mensajes de salida 
             int seleccion = JOptionPane.showConfirmDialog(
@@ -512,17 +632,21 @@ public class NewJDialog extends javax.swing.JDialog {
             );
             // Si se selecciona la opción Sí, se procede a salir del aplicativo sin guardar cambios
             if (seleccion == JOptionPane.YES_OPTION) {
+                // Se llama al constructor del JDialog
                 this.dispose();
 
                 // Limpiar todos los componentes
                 limpiarTodos();
             }
         } else {
+            // Se llama al constructor del JDialog sin limpiar los campos
             this.dispose();
         }
     }//GEN-LAST:event_botonSalirActionPerformed
 
     /**
+     * Método principal del JDialog
+     *
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -539,20 +663,20 @@ public class NewJDialog extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NewJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AltaArticuloJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NewJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AltaArticuloJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NewJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AltaArticuloJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(NewJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(AltaArticuloJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                NewJDialog dialog = new NewJDialog(new javax.swing.JFrame(), true);
+                AltaArticuloJDialog dialog = new AltaArticuloJDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -562,6 +686,7 @@ public class NewJDialog extends javax.swing.JDialog {
                 dialog.setVisible(true);
             }
         });
+
     }
 
     /**
@@ -605,7 +730,7 @@ public class NewJDialog extends javax.swing.JDialog {
      * argumento cumple con una determinada expresión regular, en este caso
      * admite cualquier digito, pero es obligatorio que contenga dos decimales.
      *
-     * @param texto String a comprobar si comple con el patrón número con dos
+     * @param texto String a comprobar si cumple con el patrón número con dos
      * decimales
      * @return Booleano indicando true si se establece match con el texto pasado
      * como argumento
@@ -617,7 +742,7 @@ public class NewJDialog extends javax.swing.JDialog {
 
         final Double PRECIO_MAX = 10000.0;
 
-        // Si se produce match entonces se evalua si el número decimal es mayo de 10000
+        // Si se produce match entonces se evalua si el número decimal es mayor de 10000.00
         if (texto.matches(regex) && Double.parseDouble(texto) <= PRECIO_MAX) {
             return true;
         } else {
@@ -630,9 +755,10 @@ public class NewJDialog extends javax.swing.JDialog {
     /**
      * El método validarEntero comprueba si el String aportado como argumento
      * cumple con una determinada expresión regular, en este caso admite
-     * cualquier digito tal que el número resultante sea cero.
+     * cualquier digito tal que el número resultante sea un entero (sin
+     * decimales).
      *
-     * @param texto String a comprobar si comple con el patrón número entero
+     * @param texto String a comprobar si cumple con el patrón número entero
      * incluyendo el cero
      * @return Booleano indicando true si se establece match con el texto pasado
      * como argumento
@@ -648,7 +774,7 @@ public class NewJDialog extends javax.swing.JDialog {
     /**
      * Limpia todos los campos de entrada dentro de un contenedor dado.
      *
-     * @param contenedor
+     * @param contenedor El contenedor a limpiar
      */
     public void limpiarCampos(Container contenedor) {
 
@@ -670,9 +796,7 @@ public class NewJDialog extends javax.swing.JDialog {
         }
     }
 
-    /*
-     * Método para limpiar todos los componestes de un contenedor y un grupo de radio botones así como el text area.
-     */
+    // Método para limpiar todos los componestes de un contenedor y un grupo de radio botones así como el text area.
     public void limpiarTodos() {
 
         limpiarCampos(this.getContentPane());
@@ -684,8 +808,8 @@ public class NewJDialog extends javax.swing.JDialog {
     /**
      * Limpia todos los campos de entrada dentro de un contenedor dado.
      *
-     * @param contenedor
-     * @return contador número entero de número de campos que
+     * @param contenedor El contenedor sobre el cual supervisar cambios.
+     * @return Contador número entero contador de campos modificados sin guardar
      */
     public int contarCamposModificados(Container contenedor) {
 
@@ -708,6 +832,40 @@ public class NewJDialog extends javax.swing.JDialog {
         return contador;
     }
 
+    /**
+     * Aplica un formato a un contenedor y a sus componentes internos. Este
+     * método establece el color de fondo del contenedor al color azul
+     * predefinido y asigna el color blanco al texto de todas las etiquetas,
+     * botones de radio y casillas de verificación que se encuentren
+     * directamente dentro de él.
+     *
+     * @param contenedor El contenedor al que se aplicará el formato.
+     */
+    public static void formateaPanel(Container contenedor) {
+
+        // Se formatea el fondo del panel
+        contenedor.setBackground(FormularioPrincipalJFrame.azulClaro);
+        // Se crea una lista de componentes que contiene el panel
+        Component[] componentes = contenedor.getComponents();
+
+        // Por cada componente del panel si es una etiqueta formatea el texto con color blanco
+        for (Component componente : componentes) {
+            if (componente instanceof JLabel) {
+                ((JLabel) componente).setForeground(Color.WHITE);
+            } else if (componente instanceof JRadioButton) {
+                ((JRadioButton) componente).setForeground(Color.WHITE);
+            } else if (componente instanceof JCheckBox) {
+                ((JCheckBox) componente).setForeground(Color.WHITE);
+            }
+        }
+    }
+
+    /**
+     * Clase que representa un artículo dentro de un inventario. Esta clase
+     * almacena toda la información relevante de un artículo.
+     *
+     * @author Antonio Naranjo Castillo
+     */
     public class Articulo {
 
         private String codigo;
@@ -722,6 +880,26 @@ public class NewJDialog extends javax.swing.JDialog {
         private String compatibilidad;
         private String descripcionDetallada;
 
+        /**
+         * Constructor objeto Articulo.
+         *
+         * @param codigo El código único del artículo (alfanumérico, máx. 10
+         * caracteres).
+         * @param nombre El nombre del artículo.
+         * @param categoria La categoría a la que pertenece el artículo.
+         * @param precio El precio de venta del artículo, número con dos
+         * decimales
+         * @param stock La cantidad actual de unidades en inventario.
+         * @param proveedor El nombre o identificador del proveedor.
+         * @param fechaEntrada La fecha en que el artículo fue registrado en el
+         * sistema (formato dd/MM/yyyy).
+         * @param garantia El período de garantía del artículo.
+         * @param estado El estado actual del artículo.
+         * @param compatibilidad Los sistemas operativos o plataformas
+         * compatibles.
+         * @param descripcionDetallada Una descripción extensa y detallada del
+         * producto.
+         */
         public Articulo(String codigo, String nombre, String categoria, String precio, String stock, String proveedor, String fechaEntrada, String garantia, String estado, String compatibilidad, String descripcionDetallada) {
             this.codigo = codigo;
             this.nombre = nombre;
@@ -734,17 +912,26 @@ public class NewJDialog extends javax.swing.JDialog {
             this.estado = estado;
             this.compatibilidad = compatibilidad;
             this.descripcionDetallada = descripcionDetallada;
+            AltaArticuloJDialog.articulosCreados++;
 
         }
 
+        /**
+         * Genera una representación en formato String del objeto Articulo,
+         * incluyendo el contador global de artículos creados.
+         *
+         * @return Una cadena formateada que lista todos los atributos del
+         * artículo.
+         */
         @Override
         public String toString() {
 
-            return String.format("Artículo [Código: %s, Nombre: %s, Categoría: %s, Precio: %s, Stock: %s, Proveedor: %s, Fecha entrada: %s, Garantía: %s, Estado: %s, Compatibilidad: %s, Descripción detallada: %s]", this.codigo, this.nombre, this.categoria, this.precio, this.stock, this.proveedor, this.fechaEntrada, this.garantia, this.estado, this.compatibilidad, this.descripcionDetallada);
+            return String.format("Artículo %d: {Código: %s, Nombre: %s, Categoría: %s, Precio: %s, Stock: %s, Proveedor: %s, Fecha entrada: %s, Garantía: %s, Estado: %s, Compatibilidad: %s, Descripción detallada: %s}", AltaArticuloJDialog.articulosCreados, this.codigo, this.nombre, this.categoria, this.precio, this.stock, this.proveedor, this.fechaEntrada, this.garantia, this.estado, this.compatibilidad, this.descripcionDetallada);
 
         }
 
     }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonGuardar;
@@ -757,8 +944,6 @@ public class NewJDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox cbReacondicionado;
     private javax.swing.JCheckBox cbUbuntu;
     private javax.swing.JCheckBox cbWindows;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -767,8 +952,13 @@ public class NewJDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelComp;
+    private javax.swing.JLabel jLabelEstado;
+    private javax.swing.JLabel jLabelGarantia;
     private javax.swing.JOptionPane jOptionPane1;
+    private javax.swing.JPanel jPanelComp;
+    private javax.swing.JPanel jPanelEstado;
+    private javax.swing.JPanel jPanelGarantia;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSpinner jSpinnerDateIn;
     private javax.swing.JRadioButton rb12;
