@@ -89,7 +89,6 @@ public class AltaArticuloJDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jOptionPane1 = new javax.swing.JOptionPane();
         tfCodigo = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -397,8 +396,8 @@ public class AltaArticuloJDialog extends javax.swing.JDialog {
 
     /**
      * Maneja el evento de acción cuando se pulsa el botón "Guardar". Se encarga
-     * de realizar todas las validaciones de los campos, procesar la lógica de
-     * negocio y confirmar el almacenamiento de los datos.
+     * de realizar todas las validaciones de los campos, procesar la lógica y
+     * confirmar el almacenamiento de los datos.
      *
      * @param evt El evento de acción que se dispara al pulsar el botón.
      */
@@ -868,17 +867,17 @@ public class AltaArticuloJDialog extends javax.swing.JDialog {
      */
     public class Articulo {
 
-        private String codigo;
-        private String nombre;
-        private String categoria;
-        private String precio;
-        private String stock;
-        private String proveedor;
-        private String fechaEntrada;
-        private String garantia;
-        private String estado;
-        private String compatibilidad;
-        private String descripcionDetallada;
+        private final String codigo;
+        private final String nombre;
+        private final String categoria;
+        private final String precio;
+        private final String stock;
+        private final String proveedor;
+        private final String fechaEntrada;
+        private final String garantia;
+        private final String estado;
+        private final String compatibilidad;
+        private final String descripcionDetallada;
 
         /**
          * Constructor objeto Articulo.
@@ -955,7 +954,6 @@ public class AltaArticuloJDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabelComp;
     private javax.swing.JLabel jLabelEstado;
     private javax.swing.JLabel jLabelGarantia;
-    private javax.swing.JOptionPane jOptionPane1;
     private javax.swing.JPanel jPanelComp;
     private javax.swing.JPanel jPanelEstado;
     private javax.swing.JPanel jPanelGarantia;
